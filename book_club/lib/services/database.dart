@@ -79,6 +79,7 @@ class OurDatabase {
       retVal = "success";
     } on PlatformException catch (e) {
       retVal = "Make sure you have the right group ID!";
+      print(e);
     } catch (e) {
       print(e);
     }
