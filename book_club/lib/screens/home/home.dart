@@ -72,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Row(
                           children: <Widget>[
                             Text(
-                              "Due In: ",
+                              "Due On: ",
                               style: TextStyle(
                                 fontSize: 30,
                                 color: Colors.grey[600],
