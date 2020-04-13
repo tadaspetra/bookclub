@@ -41,7 +41,7 @@ class OurDatabase {
     return retVal;
   }
 
-  Future<String> createGroup(String groupName, String userUid) async {
+  Future<String> createGroup(String groupName, String userUid, OurBook initialBook) async {
     String retVal = "error";
     List<String> members = List();
 
@@ -57,6 +57,9 @@ class OurDatabase {
       await _firestore.collection("users").document(userUid).updateData({
         'groupId': _docRef.documentID,
       });
+
+      //add a book
+      addBook(_docRef.documentID, initialBook);
 
       retVal = "success";
     } catch (e) {
@@ -108,6 +111,32 @@ class OurDatabase {
     return retVal;
   }
 
+  Future<String> addBook(String groupId, OurBook book) async {
+    String retVal = "error";
+
+    try {
+      DocumentReference _docRef =
+          await _firestore.collection("groups").document(groupId).collection("books").add({
+        'name': book.name,
+        'author': book.author,
+        'length': book.length,
+        'dateCompleted': book.dateCompleted,
+      });
+
+      //add current book to group schedule
+      await _firestore.collection("groups").document(groupId).updateData({
+        "currentBookId": _docRef.documentID,
+        "currentBookDue": book.dateCompleted,
+      });
+
+      retVal = "success";
+    } catch (e) {
+      print(e);
+    }
+
+    return retVal;
+  }
+
   Future<OurBook> getCurrentBook(String groupId, String bookId) async {
     OurBook retVal = OurBook();
 
@@ -120,6 +149,7 @@ class OurDatabase {
           .get();
       retVal.id = bookId;
       retVal.name = _docSnapshot.data["name"];
+      retVal.author = _docSnapshot.data["author"];
       retVal.length = _docSnapshot.data["length"];
       retVal.dateCompleted = _docSnapshot.data['dateCompleted'];
     } catch (e) {
