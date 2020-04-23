@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:book_club/screens/addBook/addBook.dart';
+import 'package:book_club/screens/review/review.dart';
 import 'package:book_club/screens/root/root.dart';
 import 'package:book_club/states/currentGroup.dart';
 import 'package:book_club/states/currentUser.dart';
@@ -15,7 +16,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<String> _timeUntil = List(2); // [0] - Time until book is due
+  List<String> _timeUntil = List(2);
+  // [0] - Time until book is due
   // [1] - Time until next book is revealed
 
   Timer _timer;
@@ -34,7 +36,8 @@ class _HomeScreenState extends State<HomeScreen> {
     CurrentUser _currentUser = Provider.of<CurrentUser>(context, listen: false);
 
     CurrentGroup _currentGroup = Provider.of<CurrentGroup>(context, listen: false);
-    _currentGroup.updateStateFromDatabase(_currentUser.getCurrentUser.groupId);
+    _currentGroup.updateStateFromDatabase(
+        _currentUser.getCurrentUser.groupId, _currentUser.getCurrentUser.uid);
     _startTimer(_currentGroup);
   }
 
@@ -50,6 +53,18 @@ class _HomeScreenState extends State<HomeScreen> {
       MaterialPageRoute(
         builder: (context) => OurAddBook(
           onGroupCreation: false,
+        ),
+      ),
+    );
+  }
+
+  void _goToReview() {
+    CurrentGroup _currentGroup = Provider.of<CurrentGroup>(context, listen: false);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => OurReview(
+          currentGroup: _currentGroup,
         ),
       ),
     );
@@ -119,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           "Finished Book",
                           style: TextStyle(color: Colors.white),
                         ),
-                        onPressed: () {},
+                        onPressed: value.getDoneWithCurrentBook ? null : _goToReview,
                       )
                     ],
                   );
