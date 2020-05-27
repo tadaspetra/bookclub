@@ -1,19 +1,19 @@
+import 'package:book_club/models/userModel.dart';
 import 'package:book_club/screens/root/root.dart';
-import 'package:book_club/services/database.dart';
-import 'package:book_club/states/currentUser.dart';
+import 'package:book_club/services/dbFuture.dart';
+import 'package:book_club/widgets/shadowContainer.dart';
 import 'package:flutter/material.dart';
-import 'package:book_club/widgets/ourContainer.dart';
 import 'package:provider/provider.dart';
 
-class OurJoinGroup extends StatefulWidget {
+class JoinGroup extends StatefulWidget {
   @override
-  _OurJoinGroupState createState() => _OurJoinGroupState();
+  _JoinGroupState createState() => _JoinGroupState();
 }
 
-class _OurJoinGroupState extends State<OurJoinGroup> {
+class _JoinGroupState extends State<JoinGroup> {
   void _joinGroup(BuildContext context, String groupId) async {
-    CurrentUser _currentUser = Provider.of<CurrentUser>(context, listen: false);
-    String _returnString = await OurDatabase().joinGroup(groupId, _currentUser.getCurrentUser.uid);
+    UserModel _currentUser = Provider.of<UserModel>(context, listen: false);
+    String _returnString = await DBFuture().joinGroup(groupId, _currentUser.uid);
     if (_returnString == "success") {
       Navigator.pushAndRemoveUntil(
           context,
@@ -49,7 +49,7 @@ class _OurJoinGroupState extends State<OurJoinGroup> {
           Spacer(),
           Padding(
             padding: const EdgeInsets.all(20.0),
-            child: OurContainer(
+            child: ShadowContainer(
               child: Column(
                 children: <Widget>[
                   TextFormField(

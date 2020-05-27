@@ -1,21 +1,20 @@
 import 'package:book_club/screens/root/root.dart';
-import 'package:book_club/screens/signup/signup.dart';
-import 'package:book_club/states/currentUser.dart';
-import 'package:book_club/widgets/ourContainer.dart';
+import 'package:book_club/screens/signUp/signup.dart';
+import 'package:book_club/services/auth.dart';
+import 'package:book_club/widgets/shadowContainer.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 enum LoginType {
   email,
   google,
 }
 
-class OurLoginForm extends StatefulWidget {
+class LoginForm extends StatefulWidget {
   @override
-  _OurLoginFormState createState() => _OurLoginFormState();
+  _LoginFormState createState() => _LoginFormState();
 }
 
-class _OurLoginFormState extends State<OurLoginForm> {
+class _LoginFormState extends State<LoginForm> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
@@ -25,17 +24,15 @@ class _OurLoginFormState extends State<OurLoginForm> {
     String password,
     BuildContext context,
   }) async {
-    CurrentUser _currentUser = Provider.of<CurrentUser>(context, listen: false);
-
     try {
       String _returnString;
 
       switch (type) {
         case LoginType.email:
-          _returnString = await _currentUser.loginUserWithEmail(email, password);
+          _returnString = await Auth().loginUserWithEmail(email, password);
           break;
         case LoginType.google:
-          _returnString = await _currentUser.loginUserWithGoogle();
+          _returnString = await Auth().loginUserWithGoogle();
           break;
         default:
       }
@@ -95,7 +92,7 @@ class _OurLoginFormState extends State<OurLoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    return OurContainer(
+    return ShadowContainer(
       child: Column(
         children: <Widget>[
           Padding(
@@ -156,7 +153,7 @@ class _OurLoginFormState extends State<OurLoginForm> {
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => OurSignUp(),
+                  builder: (context) => SignUp(),
                 ),
               );
             },

@@ -1,7 +1,7 @@
-import 'package:book_club/screens/signup/localwidgets/signUpForm.dart';
+import 'package:book_club/screens/signUp/local_widgets/signUpForm.dart';
 import 'package:flutter/material.dart';
 
-class OurSignUp extends StatelessWidget {
+class SignUp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,7 +21,7 @@ class OurSignUp extends StatelessWidget {
                 SizedBox(
                   height: 40.0,
                 ),
-                OurSignUpForm(),
+                SignUpForm(),
               ],
             ),
           )

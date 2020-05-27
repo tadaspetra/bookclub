@@ -1,20 +1,28 @@
-import 'package:book_club/states/currentGroup.dart';
-import 'package:book_club/states/currentUser.dart';
-import 'package:book_club/widgets/ourContainer.dart';
+import 'package:book_club/models/authModel.dart';
+import 'package:book_club/models/groupModel.dart';
+import 'package:book_club/services/dbFuture.dart';
+import 'package:book_club/widgets/shadowContainer.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class OurReview extends StatefulWidget {
-  final CurrentGroup currentGroup;
+class Review extends StatefulWidget {
+  final GroupModel groupModel;
 
-  OurReview({this.currentGroup});
+  Review({@required this.groupModel});
   @override
-  _OurReviewState createState() => _OurReviewState();
+  _ReviewState createState() => _ReviewState();
 }
 
-class _OurReviewState extends State<OurReview> {
+class _ReviewState extends State<Review> {
   TextEditingController _reviewController = TextEditingController();
   int _dropdownValue;
+  AuthModel _authModel;
+
+  @override
+  void didChangeDependencies() {
+    _authModel = Provider.of<AuthModel>(context);
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +38,7 @@ class _OurReviewState extends State<OurReview> {
           Spacer(),
           Padding(
             padding: const EdgeInsets.all(20.0),
-            child: OurContainer(
+            child: ShadowContainer(
               child: Column(
                 children: <Widget>[
                   Row(
@@ -85,10 +93,8 @@ class _OurReviewState extends State<OurReview> {
                       ),
                     ),
                     onPressed: () {
-                      String uid =
-                          Provider.of<CurrentUser>(context, listen: false).getCurrentUser.uid;
-
-                      widget.currentGroup.finishedBook(uid, _dropdownValue, _reviewController.text);
+                      DBFuture().finishedBook(widget.groupModel.id, widget.groupModel.currentBookId,
+                          _authModel.uid, _dropdownValue, _reviewController.text);
                       Navigator.pop(context);
                     },
                   ),

@@ -1,47 +1,11 @@
 import 'package:book_club/models/book.dart';
-import 'package:book_club/models/group.dart';
-import 'package:book_club/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 
-class OurDatabase {
-  final Firestore _firestore = Firestore.instance;
+class DBFuture {
+  Firestore _firestore = Firestore.instance;
 
-  Future<String> createUser(OurUser user) async {
-    String retVal = "error";
-
-    try {
-      await _firestore.collection("users").document(user.uid).setData({
-        'fullName': user.fullName,
-        'email': user.email,
-        'accountCreated': Timestamp.now(),
-      });
-      retVal = "success";
-    } catch (e) {
-      print(e);
-    }
-
-    return retVal;
-  }
-
-  Future<OurUser> getUserInfo(String uid) async {
-    OurUser retVal = OurUser();
-
-    try {
-      DocumentSnapshot _docSnapshot = await _firestore.collection("users").document(uid).get();
-      retVal.uid = uid;
-      retVal.fullName = _docSnapshot.data["fullName"];
-      retVal.email = _docSnapshot.data["email"];
-      retVal.accountCreated = _docSnapshot.data["accountCreated"];
-      retVal.groupId = _docSnapshot.data['groupId'];
-    } catch (e) {
-      print(e);
-    }
-
-    return retVal;
-  }
-
-  Future<String> createGroup(String groupName, String userUid, OurBook initialBook) async {
+  Future<String> createGroup(String groupName, String userUid, BookModel initialBook) async {
     String retVal = "error";
     List<String> members = List();
 
@@ -51,7 +15,7 @@ class OurDatabase {
         'name': groupName,
         'leader': userUid,
         'members': members,
-        'groupCreate': Timestamp.now(),
+        'groupCreated': Timestamp.now(),
       });
 
       await _firestore.collection("users").document(userUid).updateData({
@@ -92,26 +56,7 @@ class OurDatabase {
     return retVal;
   }
 
-  Future<OurGroup> getGroupInfo(String groupId) async {
-    OurGroup retVal = OurGroup();
-
-    try {
-      DocumentSnapshot _docSnapshot = await _firestore.collection("groups").document(groupId).get();
-      retVal.id = groupId;
-      retVal.name = _docSnapshot.data["name"];
-      retVal.leader = _docSnapshot.data["leader"];
-      retVal.members = List<String>.from(_docSnapshot.data["members"]);
-      retVal.groupCreated = _docSnapshot.data['groupCreated'];
-      retVal.currentBookId = _docSnapshot.data['currentBookId'];
-      retVal.currentBookDue = _docSnapshot.data['currentBookDue'];
-    } catch (e) {
-      print(e);
-    }
-
-    return retVal;
-  }
-
-  Future<String> addBook(String groupId, OurBook book) async {
+  Future<String> addBook(String groupId, BookModel book) async {
     String retVal = "error";
 
     try {
@@ -137,27 +82,28 @@ class OurDatabase {
     return retVal;
   }
 
-  Future<OurBook> getCurrentBook(String groupId, String bookId) async {
-    OurBook retVal = OurBook();
+  // TODO: implement this function to get called on stream change
+  // Future<OurBook> getCurrentBook(String groupId, String bookId) async {
+  //   OurBook retVal = OurBook();
 
-    try {
-      DocumentSnapshot _docSnapshot = await _firestore
-          .collection("groups")
-          .document(groupId)
-          .collection("books")
-          .document(bookId)
-          .get();
-      retVal.id = bookId;
-      retVal.name = _docSnapshot.data["name"];
-      retVal.author = _docSnapshot.data["author"];
-      retVal.length = _docSnapshot.data["length"];
-      retVal.dateCompleted = _docSnapshot.data['dateCompleted'];
-    } catch (e) {
-      print(e);
-    }
+  //   try {
+  //     DocumentSnapshot _docSnapshot = await _firestore
+  //         .collection("groups")
+  //         .document(groupId)
+  //         .collection("books")
+  //         .document(bookId)
+  //         .get();
+  //     retVal.id = bookId;
+  //     retVal.name = _docSnapshot.data["name"];
+  //     retVal.author = _docSnapshot.data["author"];
+  //     retVal.length = _docSnapshot.data["length"];
+  //     retVal.dateCompleted = _docSnapshot.data['dateCompleted'];
+  //   } catch (e) {
+  //     print(e);
+  //   }
 
-    return retVal;
-  }
+  //   return retVal;
+  // }
 
   Future<String> finishedBook(
     String groupId,

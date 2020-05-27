@@ -1,18 +1,15 @@
-import 'package:book_club/screens/home/home.dart';
+import 'package:book_club/models/authModel.dart';
+import 'package:book_club/models/groupModel.dart';
+import 'package:book_club/models/userModel.dart';
+import 'package:book_club/screens/inGroup/inGroup.dart';
 import 'package:book_club/screens/login/login.dart';
 import 'package:book_club/screens/noGroup/noGroup.dart';
 import 'package:book_club/screens/splashScreen/splashScreen.dart';
-import 'package:book_club/states/currentGroup.dart';
-import 'package:book_club/states/currentUser.dart';
+import 'package:book_club/services/dbStream.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-enum AuthStatus {
-  unknown,
-  notLoggedIn,
-  notInGroup,
-  inGroup,
-}
+enum AuthStatus { unknown, notLoggedIn, loggedIn }
 
 class OurRoot extends StatefulWidget {
   @override
@@ -21,24 +18,19 @@ class OurRoot extends StatefulWidget {
 
 class _OurRootState extends State<OurRoot> {
   AuthStatus _authStatus = AuthStatus.unknown;
+  String currentUid;
 
   @override
   void didChangeDependencies() async {
     super.didChangeDependencies();
 
     //get the state, check current User, set AuthStatus based on state
-    CurrentUser _currentUser = Provider.of<CurrentUser>(context, listen: false);
-    String _returnString = await _currentUser.onStartUp();
-    if (_returnString == "success") {
-      if (_currentUser.getCurrentUser.groupId != null) {
-        setState(() {
-          _authStatus = AuthStatus.inGroup;
-        });
-      } else {
-        setState(() {
-          _authStatus = AuthStatus.notInGroup;
-        });
-      }
+    AuthModel _authStream = Provider.of<AuthModel>(context);
+    if (_authStream != null) {
+      setState(() {
+        _authStatus = AuthStatus.loggedIn;
+        currentUid = _authStream.uid;
+      });
     } else {
       setState(() {
         _authStatus = AuthStatus.notLoggedIn;
@@ -52,22 +44,50 @@ class _OurRootState extends State<OurRoot> {
 
     switch (_authStatus) {
       case AuthStatus.unknown:
-        retVal = OurSplashScreen();
+        retVal = SplashScreen();
         break;
       case AuthStatus.notLoggedIn:
-        retVal = OurLogin();
+        retVal = Login();
         break;
-      case AuthStatus.notInGroup:
-        retVal = OurNoGroup();
-        break;
-      case AuthStatus.inGroup:
-        retVal = ChangeNotifierProvider(
-          create: (context) => CurrentGroup(),
-          child: HomeScreen(),
+      case AuthStatus.loggedIn:
+        retVal = StreamProvider<UserModel>.value(
+          value: DBStream().getCurrentUser(currentUid),
+          child: LoggedIn(),
         );
         break;
       default:
     }
+    return retVal;
+  }
+}
+
+class LoggedIn extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    UserModel _userStream = Provider.of<UserModel>(context);
+    Widget retVal;
+    if (_userStream != null) {
+      if (_userStream.groupId != null) {
+        retVal = StreamProvider<GroupModel>.value(
+          initialData: GroupModel(
+            id: "",
+            name: "loading...",
+            leader: "",
+            members: [],
+            groupCreated: null,
+            currentBookDue: null,
+            currentBookId: "",
+          ),
+          value: DBStream().getCurrentGroup(_userStream.groupId),
+          child: InGroup(),
+        );
+      } else {
+        retVal = NoGroup();
+      }
+    } else {
+      retVal = SplashScreen();
+    }
+
     return retVal;
   }
 }

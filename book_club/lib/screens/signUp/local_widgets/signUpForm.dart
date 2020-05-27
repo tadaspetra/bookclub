@@ -1,24 +1,21 @@
-import 'package:book_club/states/currentUser.dart';
-import 'package:book_club/widgets/ourContainer.dart';
+import 'package:book_club/services/auth.dart';
+import 'package:book_club/widgets/shadowContainer.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-class OurSignUpForm extends StatefulWidget {
+class SignUpForm extends StatefulWidget {
   @override
-  _OurSignUpFormState createState() => _OurSignUpFormState();
+  _SignUpFormState createState() => _SignUpFormState();
 }
 
-class _OurSignUpFormState extends State<OurSignUpForm> {
+class _SignUpFormState extends State<SignUpForm> {
   TextEditingController _fullNameController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _confirmPasswordController = TextEditingController();
 
   void _signUpUser(String email, String password, BuildContext context, String fullName) async {
-    CurrentUser _currentUser = Provider.of<CurrentUser>(context, listen: false);
-
     try {
-      String _returnString = await _currentUser.signUpUser(email, password, fullName);
+      String _returnString = await Auth().signUpUser(email, password, fullName);
       if (_returnString == "success") {
         Navigator.pop(context);
       } else {
@@ -36,7 +33,7 @@ class _OurSignUpFormState extends State<OurSignUpForm> {
 
   @override
   Widget build(BuildContext context) {
-    return OurContainer(
+    return ShadowContainer(
       child: Column(
         children: <Widget>[
           Padding(
