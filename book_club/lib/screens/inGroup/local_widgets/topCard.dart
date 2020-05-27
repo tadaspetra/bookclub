@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:book_club/models/authModel.dart';
+import 'package:book_club/models/book.dart';
 import 'package:book_club/models/groupModel.dart';
 import 'package:book_club/services/dbFuture.dart';
 import 'package:book_club/utils/timeLeft.dart';
@@ -21,10 +22,11 @@ class TopCard extends StatefulWidget {
 }
 
 class _TopCardState extends State<TopCard> {
-  String _timeUntil = "time";
+  String _timeUntil = "loading...";
   AuthModel _authModel;
   bool _doneWithBook = true;
   Timer _timer;
+  BookModel _currentBook;
 
   void _startTimer() {
     _timer = Timer.periodic(Duration(seconds: 10), (timer) {
@@ -35,10 +37,12 @@ class _TopCardState extends State<TopCard> {
   }
 
   @override
-  void didChangeDependencies() {
+  void didChangeDependencies() async {
     super.didChangeDependencies();
     _authModel = Provider.of<AuthModel>(context);
     isUserDoneWithBook();
+    _currentBook =
+        await DBFuture().getCurrentBook(widget.groupModel.id, widget.groupModel.currentBookId);
     _startTimer();
   }
 
@@ -70,13 +74,21 @@ class _TopCardState extends State<TopCard> {
 
   @override
   Widget build(BuildContext context) {
+    didChangeDependencies();
     return ShadowContainer(
       child: Column(
         children: <Widget>[
           Text(
-            widget.groupModel.currentBookId ?? "loading..",
+            (_currentBook != null) ? _currentBook.name : "loading..",
             style: TextStyle(
               fontSize: 30,
+              color: Colors.grey[600],
+            ),
+          ),
+          Text(
+            (_currentBook != null) ? _currentBook.author : "loading..",
+            style: TextStyle(
+              fontSize: 20,
               color: Colors.grey[600],
             ),
           ),

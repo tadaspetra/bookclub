@@ -82,28 +82,27 @@ class DBFuture {
     return retVal;
   }
 
-  // TODO: implement this function to get called on stream change
-  // Future<OurBook> getCurrentBook(String groupId, String bookId) async {
-  //   OurBook retVal = OurBook();
+  Future<BookModel> getCurrentBook(String groupId, String bookId) async {
+    BookModel retVal = BookModel();
 
-  //   try {
-  //     DocumentSnapshot _docSnapshot = await _firestore
-  //         .collection("groups")
-  //         .document(groupId)
-  //         .collection("books")
-  //         .document(bookId)
-  //         .get();
-  //     retVal.id = bookId;
-  //     retVal.name = _docSnapshot.data["name"];
-  //     retVal.author = _docSnapshot.data["author"];
-  //     retVal.length = _docSnapshot.data["length"];
-  //     retVal.dateCompleted = _docSnapshot.data['dateCompleted'];
-  //   } catch (e) {
-  //     print(e);
-  //   }
+    try {
+      DocumentSnapshot _docSnapshot = await _firestore
+          .collection("groups")
+          .document(groupId)
+          .collection("books")
+          .document(bookId)
+          .get();
+      retVal.id = bookId;
+      retVal.name = _docSnapshot.data["name"];
+      retVal.author = _docSnapshot.data["author"];
+      retVal.length = _docSnapshot.data["length"];
+      retVal.dateCompleted = _docSnapshot.data['dateCompleted'];
+    } catch (e) {
+      print(e);
+    }
 
-  //   return retVal;
-  // }
+    return retVal;
+  }
 
   Future<String> finishedBook(
     String groupId,
