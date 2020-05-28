@@ -69,15 +69,6 @@ class LoggedIn extends StatelessWidget {
     if (_userStream != null) {
       if (_userStream.groupId != null) {
         retVal = StreamProvider<GroupModel>.value(
-          initialData: GroupModel(
-            id: "",
-            name: "loading...",
-            leader: "",
-            members: [],
-            groupCreated: null,
-            currentBookDue: null,
-            currentBookId: "",
-          ),
           value: DBStream().getCurrentGroup(_userStream.groupId),
           child: InGroup(),
         );

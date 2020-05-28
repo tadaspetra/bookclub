@@ -60,7 +60,7 @@ class InGroupState extends State<InGroup> {
           ),
           Padding(
             padding: const EdgeInsets.all(20.0),
-            child: TopCard(groupModel: _groupModel),
+            child: TopCard(),
           ),
           Padding(
             padding: const EdgeInsets.all(20.0),

@@ -11,12 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class TopCard extends StatefulWidget {
-  final GroupModel groupModel;
-
-  TopCard({
-    this.groupModel,
-  });
-
   @override
   _TopCardState createState() => _TopCardState();
 }
@@ -27,11 +21,12 @@ class _TopCardState extends State<TopCard> {
   bool _doneWithBook = true;
   Timer _timer;
   BookModel _currentBook;
+  GroupModel _groupModel;
 
   void _startTimer() {
-    _timer = Timer.periodic(Duration(seconds: 10), (timer) {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
-        _timeUntil = TimeLeft().timeLeft(widget.groupModel.currentBookDue.toDate());
+        _timeUntil = TimeLeft().timeLeft(_currentBook.dateCompleted.toDate());
       });
     });
   }
@@ -40,10 +35,12 @@ class _TopCardState extends State<TopCard> {
   void didChangeDependencies() async {
     super.didChangeDependencies();
     _authModel = Provider.of<AuthModel>(context);
-    isUserDoneWithBook();
-    _currentBook =
-        await DBFuture().getCurrentBook(widget.groupModel.id, widget.groupModel.currentBookId);
-    _startTimer();
+    _groupModel = Provider.of<GroupModel>(context);
+    if (_groupModel != null) {
+      isUserDoneWithBook();
+      _currentBook = await DBFuture().getCurrentBook(_groupModel.id, _groupModel.currentBookId);
+      _startTimer();
+    }
   }
 
   @override
@@ -53,8 +50,8 @@ class _TopCardState extends State<TopCard> {
   }
 
   isUserDoneWithBook() async {
-    if (await DBFuture().isUserDoneWithBook(
-        widget.groupModel.id, widget.groupModel.currentBookId, _authModel.uid)) {
+    if (await DBFuture()
+        .isUserDoneWithBook(_groupModel.id, _groupModel.currentBookId, _authModel.uid)) {
       _doneWithBook = true;
     } else {
       _doneWithBook = false;
@@ -66,7 +63,7 @@ class _TopCardState extends State<TopCard> {
       context,
       MaterialPageRoute(
         builder: (context) => Review(
-          groupModel: widget.groupModel,
+          groupModel: _groupModel,
         ),
       ),
     );
@@ -74,7 +71,6 @@ class _TopCardState extends State<TopCard> {
 
   @override
   Widget build(BuildContext context) {
-    didChangeDependencies();
     return ShadowContainer(
       child: Column(
         children: <Widget>[
