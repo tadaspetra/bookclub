@@ -1,4 +1,7 @@
 import 'package:book_club/models/authModel.dart';
+import 'package:book_club/models/userModel.dart';
+import 'package:book_club/services/dbFuture.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -28,13 +31,18 @@ class Auth {
   Future<String> signUpUser(String email, String password, String fullName) async {
     String retVal = "error";
     try {
-      await _auth.createUserWithEmailAndPassword(email: email, password: password);
-
-      // String _returnString = await OurDatabase().createUser(_user);
-      // if (_returnString == "success") {
-      //   retVal = "success";
-      // }
-      retVal = "success";
+      AuthResult _authResult =
+          await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      UserModel _user = UserModel(
+        uid: _authResult.user.uid,
+        email: _authResult.user.email,
+        fullName: fullName,
+        accountCreated: Timestamp.now(),
+      );
+      String _returnString = await DBFuture().createUser(_user);
+      if (_returnString == "success") {
+        retVal = "success";
+      }
     } on PlatformException catch (e) {
       retVal = e.message;
     } catch (e) {
@@ -49,12 +57,6 @@ class Auth {
 
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
-
-      //   _currentUser = await OurDatabase().getUserInfo(_authResult.user.uid);
-      // if (_currentUser != null) {
-      //   retVal = "success";
-      // }
-
     } on PlatformException catch (e) {
       retVal = e.message;
     } catch (e) {
@@ -80,12 +82,18 @@ class Auth {
           idToken: _googleAuth.idToken, accessToken: _googleAuth.accessToken);
       AuthResult _authResult = await _auth.signInWithCredential(credential);
       if (_authResult.additionalUserInfo.isNewUser) {
-        //OurDatabase().createUser(_user);
+        UserModel _user = UserModel(
+          uid: _authResult.user.uid,
+          email: _authResult.user.email,
+          fullName: _authResult.user.displayName,
+          accountCreated: Timestamp.now(),
+        );
+        String _returnString = await DBFuture().createUser(_user);
+        if (_returnString == "success") {
+          retVal = "success";
+        }
       }
-      // _currentUser = await OurDatabase().getUserInfo(_authResult.user.uid);
-      // if (_currentUser != null) {
-      //   retVal = "success";
-      // }
+      retVal = "success";
     } on PlatformException catch (e) {
       retVal = e.message;
     } catch (e) {

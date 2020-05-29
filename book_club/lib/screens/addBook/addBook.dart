@@ -47,7 +47,7 @@ class _OurAddBookState extends State<OurAddBook> {
     if (widget.onGroupCreation) {
       _returnString = await DBFuture().createGroup(groupName, _auth.uid, book);
     } else {
-      _returnString = await DBFuture().addBook(widget.currentUser.groupId, book);
+      _returnString = await DBFuture().addNextBook(widget.currentUser.groupId, book);
     }
 
     if (_returnString == "success") {

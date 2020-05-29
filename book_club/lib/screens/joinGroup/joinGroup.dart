@@ -6,13 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class JoinGroup extends StatefulWidget {
+  final UserModel userModel;
+
+  JoinGroup({this.userModel});
   @override
   _JoinGroupState createState() => _JoinGroupState();
 }
 
 class _JoinGroupState extends State<JoinGroup> {
   void _joinGroup(BuildContext context, String groupId) async {
-    UserModel _currentUser = Provider.of<UserModel>(context, listen: false);
+    UserModel _currentUser = widget.userModel;
     String _returnString = await DBFuture().joinGroup(groupId, _currentUser.uid);
     if (_returnString == "success") {
       Navigator.pushAndRemoveUntil(

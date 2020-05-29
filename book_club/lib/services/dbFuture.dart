@@ -1,4 +1,5 @@
 import 'package:book_club/models/book.dart';
+import 'package:book_club/models/userModel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 
@@ -16,6 +17,8 @@ class DBFuture {
         'leader': userUid,
         'members': members,
         'groupCreated': Timestamp.now(),
+        'nextBookId': "waiting",
+        'indextPickingBook': 0
       });
 
       await _firestore.collection("users").document(userUid).updateData({
@@ -71,7 +74,31 @@ class DBFuture {
       //add current book to group schedule
       await _firestore.collection("groups").document(groupId).updateData({
         "currentBookId": _docRef.documentID,
-        "currentBookDue": book.dateCompleted,
+      });
+
+      retVal = "success";
+    } catch (e) {
+      print(e);
+    }
+
+    return retVal;
+  }
+
+  Future<String> addNextBook(String groupId, BookModel book) async {
+    String retVal = "error";
+
+    try {
+      DocumentReference _docRef =
+          await _firestore.collection("groups").document(groupId).collection("books").add({
+        'name': book.name,
+        'author': book.author,
+        'length': book.length,
+        'dateCompleted': book.dateCompleted,
+      });
+
+      //add current book to group schedule
+      await _firestore.collection("groups").document(groupId).updateData({
+        "nextBookId": _docRef.documentID,
       });
 
       retVal = "success";
@@ -148,6 +175,36 @@ class DBFuture {
     } catch (e) {
       print(e);
     }
+    return retVal;
+  }
+
+  Future<String> createUser(UserModel user) async {
+    String retVal = "error";
+
+    try {
+      await _firestore.collection("users").document(user.uid).setData({
+        'fullName': user.fullName,
+        'email': user.email,
+        'accountCreated': Timestamp.now(),
+      });
+      retVal = "success";
+    } catch (e) {
+      print(e);
+    }
+
+    return retVal;
+  }
+
+  Future<UserModel> getUser(String uid) async {
+    UserModel retVal;
+
+    try {
+      DocumentSnapshot _docSnapshot = await _firestore.collection("users").document(uid).get();
+      retVal = UserModel.fromDocumentSnapshot(doc: _docSnapshot);
+    } catch (e) {
+      print(e);
+    }
+
     return retVal;
   }
 }

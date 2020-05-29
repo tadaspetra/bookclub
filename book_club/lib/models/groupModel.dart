@@ -7,7 +7,8 @@ class GroupModel {
   List<String> members;
   Timestamp groupCreated;
   String currentBookId;
-  Timestamp currentBookDue;
+  int indexPickingBook;
+  String nextBookId;
 
   GroupModel({
     this.id,
@@ -16,7 +17,8 @@ class GroupModel {
     this.members,
     this.groupCreated,
     this.currentBookId,
-    this.currentBookDue,
+    this.indexPickingBook,
+    this.nextBookId,
   });
 
   GroupModel.fromDocumentSnapshot({DocumentSnapshot doc}) {
@@ -26,6 +28,7 @@ class GroupModel {
     members = List<String>.from(doc.data["members"]);
     groupCreated = doc.data["groupCreated"];
     currentBookId = doc.data["currentBookId"];
-    currentBookDue = doc.data["currentBookDue"];
+    indexPickingBook = doc.data["indexPickingBook"];
+    nextBookId = doc.data["nextBookId"];
   }
 }

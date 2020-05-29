@@ -10,6 +10,9 @@ class UserModel {
   UserModel({
     this.uid,
     this.email,
+    this.accountCreated,
+    this.fullName,
+    this.groupId,
   });
 
   UserModel.fromDocumentSnapshot({DocumentSnapshot doc}) {

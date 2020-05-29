@@ -15,26 +15,12 @@ class InGroup extends StatefulWidget {
 }
 
 class InGroupState extends State<InGroup> {
-  GroupModel _groupModel;
   UserModel _userModel;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _userModel = Provider.of<UserModel>(context);
-    _groupModel = Provider.of<GroupModel>(context);
-  }
-
-  void _goToAddBook(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => OurAddBook(
-          onGroupCreation: false,
-          currentUser: _userModel,
-        ),
-      ),
-    );
   }
 
   void _signOut(BuildContext context) async {
@@ -73,7 +59,7 @@ class InGroupState extends State<InGroup> {
                 "Book Club History",
                 style: TextStyle(color: Colors.white),
               ),
-              onPressed: () => _goToAddBook(context),
+              onPressed: () => {},
             ),
           ),
           Padding(
