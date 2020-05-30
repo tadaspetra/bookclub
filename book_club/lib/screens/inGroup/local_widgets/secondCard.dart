@@ -25,8 +25,13 @@ class _SecondCardState extends State<SecondCard> {
     _currentUser = Provider.of<UserModel>(context);
     if (_groupModel != null) {
       _pickingUser = await DBFuture().getUser(_groupModel.members[_groupModel.indexPickingBook]);
-      _nextBook = await DBFuture().getCurrentBook(_groupModel.id, _groupModel.nextBookId);
-      setState(() {});
+      if (_groupModel.nextBookId != "waiting") {
+        _nextBook = await DBFuture().getCurrentBook(_groupModel.id, _groupModel.nextBookId);
+      }
+
+      if (this.mounted) {
+        setState(() {});
+      }
     }
   }
 

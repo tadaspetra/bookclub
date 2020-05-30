@@ -3,7 +3,6 @@ import 'package:book_club/screens/root/root.dart';
 import 'package:book_club/services/dbFuture.dart';
 import 'package:book_club/widgets/shadowContainer.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class JoinGroup extends StatefulWidget {
   final UserModel userModel;

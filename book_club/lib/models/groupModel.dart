@@ -9,6 +9,8 @@ class GroupModel {
   String currentBookId;
   int indexPickingBook;
   String nextBookId;
+  Timestamp currentBookDue;
+  Timestamp nextBookDue;
 
   GroupModel({
     this.id,
@@ -19,6 +21,8 @@ class GroupModel {
     this.currentBookId,
     this.indexPickingBook,
     this.nextBookId,
+    this.currentBookDue,
+    this.nextBookDue,
   });
 
   GroupModel.fromDocumentSnapshot({DocumentSnapshot doc}) {
@@ -30,5 +34,7 @@ class GroupModel {
     currentBookId = doc.data["currentBookId"];
     indexPickingBook = doc.data["indexPickingBook"];
     nextBookId = doc.data["nextBookId"];
+    currentBookDue = doc.data["currentBookDue"];
+    nextBookDue = doc.data["nextBookDue"];
   }
 }

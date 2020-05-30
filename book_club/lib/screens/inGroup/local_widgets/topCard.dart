@@ -25,9 +25,11 @@ class _TopCardState extends State<TopCard> {
 
   void _startTimer() {
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      setState(() {
-        _timeUntil = TimeLeft().timeLeft(_currentBook.dateCompleted.toDate());
-      });
+      if (this.mounted) {
+        setState(() {
+          _timeUntil = TimeLeft().timeLeft(_currentBook.dateCompleted.toDate());
+        });
+      }
     });
   }
 
@@ -45,7 +47,9 @@ class _TopCardState extends State<TopCard> {
 
   @override
   void dispose() {
-    _timer.cancel();
+    if (_timer != null) {
+      _timer.cancel();
+    }
     super.dispose();
   }
 

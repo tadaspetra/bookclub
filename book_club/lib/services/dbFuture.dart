@@ -18,7 +18,7 @@ class DBFuture {
         'members': members,
         'groupCreated': Timestamp.now(),
         'nextBookId': "waiting",
-        'indextPickingBook': 0
+        'indexPickingBook': 0
       });
 
       await _firestore.collection("users").document(userUid).updateData({
@@ -74,6 +74,7 @@ class DBFuture {
       //add current book to group schedule
       await _firestore.collection("groups").document(groupId).updateData({
         "currentBookId": _docRef.documentID,
+        "currentBookDue": book.dateCompleted,
       });
 
       retVal = "success";
@@ -99,6 +100,7 @@ class DBFuture {
       //add current book to group schedule
       await _firestore.collection("groups").document(groupId).updateData({
         "nextBookId": _docRef.documentID,
+        "nextBookDue": book.dateCompleted,
       });
 
       retVal = "success";
@@ -110,7 +112,7 @@ class DBFuture {
   }
 
   Future<BookModel> getCurrentBook(String groupId, String bookId) async {
-    BookModel retVal = BookModel();
+    BookModel retVal;
 
     try {
       DocumentSnapshot _docSnapshot = await _firestore
@@ -119,11 +121,7 @@ class DBFuture {
           .collection("books")
           .document(bookId)
           .get();
-      retVal.id = bookId;
-      retVal.name = _docSnapshot.data["name"];
-      retVal.author = _docSnapshot.data["author"];
-      retVal.length = _docSnapshot.data["length"];
-      retVal.dateCompleted = _docSnapshot.data['dateCompleted'];
+      retVal = BookModel.fromDocumentSnapshot(doc: _docSnapshot);
     } catch (e) {
       print(e);
     }

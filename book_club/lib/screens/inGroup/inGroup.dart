@@ -1,10 +1,6 @@
-import 'package:book_club/models/groupModel.dart';
-import 'package:book_club/models/userModel.dart';
-import 'package:book_club/screens/addBook/addBook.dart';
 import 'package:book_club/screens/root/root.dart';
 import 'package:book_club/services/auth.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import 'local_widgets/secondCard.dart';
 import 'local_widgets/topCard.dart';
@@ -15,12 +11,9 @@ class InGroup extends StatefulWidget {
 }
 
 class InGroupState extends State<InGroup> {
-  UserModel _userModel;
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _userModel = Provider.of<UserModel>(context);
   }
 
   void _signOut(BuildContext context) async {
