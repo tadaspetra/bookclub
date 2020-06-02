@@ -6,8 +6,8 @@ import 'package:book_club/services/dbFuture.dart';
 import 'package:book_club/widgets/shadowContainer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:numberpicker/numberpicker.dart';
 import 'package:provider/provider.dart';
 
 class OurAddBook extends StatefulWidget {
@@ -31,13 +31,46 @@ class _OurAddBookState extends State<OurAddBook> {
 
   DateTime _selectedDate = DateTime.now();
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime picked = await DatePicker.showDateTimePicker(context, showTitleActions: true);
+  initState() {
+    super.initState();
+    _selectedDate = DateTime(
+        _selectedDate.year, _selectedDate.month, _selectedDate.day, _selectedDate.hour, 0, 0, 0, 0);
+  }
+
+  Future<void> _selectDate() async {
+    final DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime.now(),
+        lastDate: DateTime(2222));
+
     if (picked != null && picked != _selectedDate) {
       setState(() {
-        _selectedDate = picked;
+        _selectedDate =
+            DateTime(picked.year, picked.month, picked.day, _selectedDate.hour, 0, 0, 0, 0);
       });
     }
+  }
+
+  Future _selectTime() async {
+    await showDialog<int>(
+      context: context,
+      builder: (BuildContext context) {
+        return new NumberPickerDialog.integer(
+          minValue: 0,
+          maxValue: 23,
+          initialIntegerValue: 0,
+          infiniteLoop: true,
+        );
+      },
+    ).then((num value) {
+      if (value != null) {
+        setState(() {
+          _selectedDate = DateTime(
+              _selectedDate.year, _selectedDate.month, _selectedDate.day, value, 0, 0, 0, 0);
+        });
+      }
+    });
   }
 
   void _addBook(BuildContext context, String groupName, BookModel book) async {
@@ -111,10 +144,18 @@ class _OurAddBookState extends State<OurAddBook> {
                     height: 20.0,
                   ),
                   Text(DateFormat.yMMMMd("en_US").format(_selectedDate)),
-                  Text(DateFormat("H:mm").format(_selectedDate)),
-                  FlatButton(
-                    child: Text("Change Date"),
-                    onPressed: () => _selectDate(context),
+                  Text(DateFormat("H:00").format(_selectedDate)),
+                  Row(
+                    children: [
+                      FlatButton(
+                        child: Text("Change Date"),
+                        onPressed: () => _selectDate(),
+                      ),
+                      FlatButton(
+                        child: Text("Change Time"),
+                        onPressed: () => _selectTime(),
+                      ),
+                    ],
                   ),
                   RaisedButton(
                     child: Padding(

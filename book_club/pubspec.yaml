@@ -23,10 +23,8 @@ dependencies:
   provider:
   google_sign_in:
   cloud_firestore:
-  flutter_datetime_picker:
-    git:
-      url: https://github.com/derohimat/flutter_datetime_picker.git
   intl:
+  numberpicker:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

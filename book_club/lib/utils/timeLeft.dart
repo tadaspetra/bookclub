@@ -19,6 +19,8 @@ class TimeLeft {
       retVal = _hoursUntil.toString() + " hours\n" + _minUntil.toString() + " mins";
     } else if (_minUntil > 0) {
       retVal = _minUntil.toString() + " mins";
+    } else if (_minUntil == 0) {
+      retVal = "almost there ";
     } else {
       retVal = "error";
     }
