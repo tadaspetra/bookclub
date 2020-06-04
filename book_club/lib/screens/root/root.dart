@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:book_club/models/authModel.dart';
 import 'package:book_club/models/groupModel.dart';
 import 'package:book_club/models/userModel.dart';
@@ -6,6 +8,7 @@ import 'package:book_club/screens/login/login.dart';
 import 'package:book_club/screens/noGroup/noGroup.dart';
 import 'package:book_club/screens/splashScreen/splashScreen.dart';
 import 'package:book_club/services/dbStream.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -19,6 +22,31 @@ class OurRoot extends StatefulWidget {
 class _OurRootState extends State<OurRoot> {
   AuthStatus _authStatus = AuthStatus.unknown;
   String currentUid;
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (Platform.isIOS) {
+      _firebaseMessaging.requestNotificationPermissions(IosNotificationSettings());
+      _firebaseMessaging.onIosSettingsRegistered.listen((event) {
+        print("IOS Registered");
+      });
+    }
+
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        print("onMessage: $message");
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print("onLaunch: $message");
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print("onResume: $message");
+      },
+    );
+  }
 
   @override
   void didChangeDependencies() async {

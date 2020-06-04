@@ -15,7 +15,7 @@ class JoinGroup extends StatefulWidget {
 class _JoinGroupState extends State<JoinGroup> {
   void _joinGroup(BuildContext context, String groupId) async {
     UserModel _currentUser = widget.userModel;
-    String _returnString = await DBFuture().joinGroup(groupId, _currentUser.uid);
+    String _returnString = await DBFuture().joinGroup(groupId, _currentUser);
     if (_returnString == "success") {
       Navigator.pushAndRemoveUntil(
           context,

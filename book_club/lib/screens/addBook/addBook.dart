@@ -1,4 +1,3 @@
-import 'package:book_club/models/authModel.dart';
 import 'package:book_club/models/book.dart';
 import 'package:book_club/models/userModel.dart';
 import 'package:book_club/screens/root/root.dart';
@@ -8,7 +7,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:numberpicker/numberpicker.dart';
-import 'package:provider/provider.dart';
 
 class OurAddBook extends StatefulWidget {
   final bool onGroupCreation;
@@ -74,11 +72,10 @@ class _OurAddBookState extends State<OurAddBook> {
   }
 
   void _addBook(BuildContext context, String groupName, BookModel book) async {
-    AuthModel _auth = Provider.of<AuthModel>(context, listen: false);
     String _returnString;
 
     if (widget.onGroupCreation) {
-      _returnString = await DBFuture().createGroup(groupName, _auth.uid, book);
+      _returnString = await DBFuture().createGroup(groupName, widget.currentUser, book);
     } else {
       _returnString = await DBFuture().addNextBook(widget.currentUser.groupId, book);
     }

@@ -6,22 +6,37 @@ import 'package:flutter/services.dart';
 class DBFuture {
   Firestore _firestore = Firestore.instance;
 
-  Future<String> createGroup(String groupName, String userUid, BookModel initialBook) async {
+  Future<String> createGroup(String groupName, UserModel user, BookModel initialBook) async {
     String retVal = "error";
     List<String> members = List();
+    List<String> tokens = List();
 
     try {
-      members.add(userUid);
-      DocumentReference _docRef = await _firestore.collection("groups").add({
-        'name': groupName,
-        'leader': userUid,
-        'members': members,
-        'groupCreated': Timestamp.now(),
-        'nextBookId': "waiting",
-        'indexPickingBook': 0
-      });
+      members.add(user.uid);
+      tokens.add(user.notifToken);
+      DocumentReference _docRef;
+      if (user.notifToken != null) {
+        _docRef = await _firestore.collection("groups").add({
+          'name': groupName,
+          'leader': user.uid,
+          'members': members,
+          'tokens': tokens,
+          'groupCreated': Timestamp.now(),
+          'nextBookId': "waiting",
+          'indexPickingBook': 0
+        });
+      } else {
+        _docRef = await _firestore.collection("groups").add({
+          'name': groupName,
+          'leader': user.uid,
+          'members': members,
+          'groupCreated': Timestamp.now(),
+          'nextBookId': "waiting",
+          'indexPickingBook': 0
+        });
+      }
 
-      await _firestore.collection("users").document(userUid).updateData({
+      await _firestore.collection("users").document(user.uid).updateData({
         'groupId': _docRef.documentID,
       });
 
@@ -36,15 +51,25 @@ class DBFuture {
     return retVal;
   }
 
-  Future<String> joinGroup(String groupId, String userUid) async {
+  Future<String> joinGroup(String groupId, UserModel userModel) async {
     String retVal = "error";
     List<String> members = List();
+    List<String> tokens = List();
     try {
-      members.add(userUid);
-      await _firestore.collection("groups").document(groupId).updateData({
-        'members': FieldValue.arrayUnion(members),
-      });
-      await _firestore.collection("users").document(userUid).updateData({
+      members.add(userModel.uid);
+      tokens.add(userModel.notifToken);
+      if (userModel.notifToken != null) {
+        await _firestore.collection("groups").document(groupId).updateData({
+          'members': FieldValue.arrayUnion(members),
+          'tokens': FieldValue.arrayUnion(tokens),
+        });
+      } else {
+        await _firestore.collection("groups").document(groupId).updateData({
+          'members': FieldValue.arrayUnion(members),
+        });
+      }
+
+      await _firestore.collection("users").document(userModel.uid).updateData({
         'groupId': groupId,
       });
 
@@ -102,6 +127,10 @@ class DBFuture {
         "nextBookId": _docRef.documentID,
         "nextBookDue": book.dateCompleted,
       });
+
+      //adding a notification document
+      DocumentSnapshot doc = await _firestore.collection("groups").document(groupId).get();
+      createNotifications(List<String>.from(doc.data["tokens"]) ?? [], book.name, book.author);
 
       retVal = "success";
     } catch (e) {
@@ -184,6 +213,7 @@ class DBFuture {
         'fullName': user.fullName,
         'email': user.email,
         'accountCreated': Timestamp.now(),
+        'notifToken': user.notifToken,
       });
       retVal = "success";
     } catch (e) {
@@ -199,6 +229,23 @@ class DBFuture {
     try {
       DocumentSnapshot _docSnapshot = await _firestore.collection("users").document(uid).get();
       retVal = UserModel.fromDocumentSnapshot(doc: _docSnapshot);
+    } catch (e) {
+      print(e);
+    }
+
+    return retVal;
+  }
+
+  Future<String> createNotifications(List<String> tokens, String bookName, String author) async {
+    String retVal = "error";
+
+    try {
+      await _firestore.collection("notifications").add({
+        'bookName': bookName,
+        'author': author,
+        'tokens': tokens,
+      });
+      retVal = "success";
     } catch (e) {
       print(e);
     }

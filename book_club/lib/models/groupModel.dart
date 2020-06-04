@@ -5,6 +5,7 @@ class GroupModel {
   String name;
   String leader;
   List<String> members;
+  List<String> tokens;
   Timestamp groupCreated;
   String currentBookId;
   int indexPickingBook;
@@ -17,6 +18,7 @@ class GroupModel {
     this.name,
     this.leader,
     this.members,
+    this.tokens,
     this.groupCreated,
     this.currentBookId,
     this.indexPickingBook,
@@ -30,6 +32,7 @@ class GroupModel {
     name = doc.data["name"];
     leader = doc.data["leader"];
     members = List<String>.from(doc.data["members"]);
+    tokens = List<String>.from(doc.data["tokens"] ?? []);
     groupCreated = doc.data["groupCreated"];
     currentBookId = doc.data["currentBookId"];
     indexPickingBook = doc.data["indexPickingBook"];

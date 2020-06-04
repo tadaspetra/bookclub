@@ -3,11 +3,13 @@ import 'package:book_club/models/userModel.dart';
 import 'package:book_club/services/dbFuture.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class Auth {
   FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseMessaging _fcm = FirebaseMessaging();
 
   Stream<AuthModel> get user {
     return _auth.onAuthStateChanged.map(
@@ -38,6 +40,7 @@ class Auth {
         email: _authResult.user.email,
         fullName: fullName,
         accountCreated: Timestamp.now(),
+        notifToken: await _fcm.getToken(),
       );
       String _returnString = await DBFuture().createUser(_user);
       if (_returnString == "success") {
@@ -87,6 +90,7 @@ class Auth {
           email: _authResult.user.email,
           fullName: _authResult.user.displayName,
           accountCreated: Timestamp.now(),
+          notifToken: await _fcm.getToken(),
         );
         String _returnString = await DBFuture().createUser(_user);
         if (_returnString == "success") {

@@ -6,6 +6,7 @@ class UserModel {
   Timestamp accountCreated;
   String fullName;
   String groupId;
+  String notifToken;
 
   UserModel({
     this.uid,
@@ -13,6 +14,7 @@ class UserModel {
     this.accountCreated,
     this.fullName,
     this.groupId,
+    this.notifToken,
   });
 
   UserModel.fromDocumentSnapshot({DocumentSnapshot doc}) {
@@ -21,5 +23,6 @@ class UserModel {
     accountCreated = doc.data['accountCreated'];
     fullName = doc.data['fullName'];
     groupId = doc.data['groupId'];
+    notifToken = doc.data['notifToken'];
   }
 }
