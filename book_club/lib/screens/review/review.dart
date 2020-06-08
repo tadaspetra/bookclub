@@ -1,5 +1,6 @@
 import 'package:book_club/models/authModel.dart';
 import 'package:book_club/models/groupModel.dart';
+import 'package:book_club/screens/root/root.dart';
 import 'package:book_club/services/dbFuture.dart';
 import 'package:book_club/widgets/shadowContainer.dart';
 import 'package:flutter/material.dart';
@@ -95,7 +96,13 @@ class _ReviewState extends State<Review> {
                     onPressed: () {
                       DBFuture().finishedBook(widget.groupModel.id, widget.groupModel.currentBookId,
                           _authModel.uid, _dropdownValue, _reviewController.text);
-                      Navigator.pop(context);
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => OurRoot(),
+                        ),
+                        (route) => false,
+                      );
                     },
                   ),
                 ],

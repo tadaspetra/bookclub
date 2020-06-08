@@ -1,6 +1,9 @@
+import 'package:book_club/models/groupModel.dart';
+import 'package:book_club/screens/bookHistory/bookHistory.dart';
 import 'package:book_club/screens/root/root.dart';
 import 'package:book_club/services/auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'local_widgets/secondCard.dart';
 import 'local_widgets/topCard.dart';
@@ -29,6 +32,18 @@ class InGroupState extends State<InGroup> {
     }
   }
 
+  void _goToBookHistory() {
+    GroupModel group = Provider.of<GroupModel>(context, listen: false);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BookHistory(
+          groupId: group.id,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,7 +67,7 @@ class InGroupState extends State<InGroup> {
                 "Book Club History",
                 style: TextStyle(color: Colors.white),
               ),
-              onPressed: () => {},
+              onPressed: () => _goToBookHistory(),
             ),
           ),
           Padding(

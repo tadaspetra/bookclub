@@ -1,4 +1,5 @@
 import 'package:book_club/models/book.dart';
+import 'package:book_club/models/reviewModel.dart';
 import 'package:book_club/models/userModel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
@@ -250,6 +251,47 @@ class DBFuture {
       print(e);
     }
 
+    return retVal;
+  }
+
+  Future<List<BookModel>> getBookHistory(String groupId) async {
+    List<BookModel> retVal = List();
+
+    try {
+      QuerySnapshot query = await _firestore
+          .collection("groups")
+          .document(groupId)
+          .collection("books")
+          .orderBy("dateCompleted", descending: true)
+          .getDocuments();
+
+      query.documents.forEach((element) {
+        retVal.add(BookModel.fromDocumentSnapshot(doc: element));
+      });
+    } catch (e) {
+      print(e);
+    }
+    return retVal;
+  }
+
+  Future<List<ReviewModel>> getReviewHistory(String groupId, String bookId) async {
+    List<ReviewModel> retVal = List();
+
+    try {
+      QuerySnapshot query = await _firestore
+          .collection("groups")
+          .document(groupId)
+          .collection("books")
+          .document(bookId)
+          .collection("reviews")
+          .getDocuments();
+
+      query.documents.forEach((element) {
+        retVal.add(ReviewModel.fromDocumentSnapshot(doc: element));
+      });
+    } catch (e) {
+      print(e);
+    }
     return retVal;
   }
 }
