@@ -15,6 +15,7 @@ class Review extends StatefulWidget {
 }
 
 class _ReviewState extends State<Review> {
+  final reviewKey = GlobalKey<ScaffoldState>();
   TextEditingController _reviewController = TextEditingController();
   int _dropdownValue;
   AuthModel _authModel;
@@ -28,6 +29,7 @@ class _ReviewState extends State<Review> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: reviewKey,
       body: Column(
         children: <Widget>[
           Padding(
@@ -51,7 +53,8 @@ class _ReviewState extends State<Review> {
                         icon: Icon(Icons.arrow_downward),
                         iconSize: 24,
                         elevation: 16,
-                        style: TextStyle(color: Theme.of(context).secondaryHeaderColor),
+                        style: TextStyle(
+                            color: Theme.of(context).secondaryHeaderColor),
                         underline: Container(
                           height: 2,
                           color: Theme.of(context).canvasColor,
@@ -94,15 +97,25 @@ class _ReviewState extends State<Review> {
                       ),
                     ),
                     onPressed: () {
-                      DBFuture().finishedBook(widget.groupModel.id, widget.groupModel.currentBookId,
-                          _authModel.uid, _dropdownValue, _reviewController.text);
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => OurRoot(),
-                        ),
-                        (route) => false,
-                      );
+                      if (_dropdownValue != null) {
+                        DBFuture().finishedBook(
+                            widget.groupModel.id,
+                            widget.groupModel.currentBookId,
+                            _authModel.uid,
+                            _dropdownValue,
+                            _reviewController.text);
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => OurRoot(),
+                          ),
+                          (route) => false,
+                        );
+                      } else {
+                        reviewKey.currentState.showSnackBar(SnackBar(
+                          content: Text("Need to add rating!"),
+                        ));
+                      }
                     },
                   ),
                 ],

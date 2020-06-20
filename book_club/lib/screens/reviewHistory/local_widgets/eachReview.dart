@@ -45,13 +45,15 @@ class _EachReviewState extends State<EachReview> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          Text(
-            widget.review.review,
-            style: TextStyle(
-              fontSize: 20,
-              color: Colors.grey[600],
-            ),
-          )
+          (widget.review.review != null)
+              ? Text(
+                  widget.review.review,
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.grey[600],
+                  ),
+                )
+              : Text(""),
         ],
       ),
     );

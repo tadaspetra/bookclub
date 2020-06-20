@@ -1,6 +1,8 @@
 import 'package:book_club/models/userModel.dart';
 import 'package:book_club/screens/createGroup/createGroup.dart';
 import 'package:book_club/screens/joinGroup/joinGroup.dart';
+import 'package:book_club/screens/root/root.dart';
+import 'package:book_club/services/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -28,9 +30,35 @@ class NoGroup extends StatelessWidget {
       );
     }
 
+    void _signOut(BuildContext context) async {
+      String _returnString = await Auth().signOut();
+      if (_returnString == "success") {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OurRoot(),
+          ),
+          (route) => false,
+        );
+      }
+    }
+
     return Scaffold(
       body: Column(
         children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 40, 20, 0),
+                child: IconButton(
+                  onPressed: () => _signOut(context),
+                  icon: Icon(Icons.exit_to_app),
+                  color: Theme.of(context).secondaryHeaderColor,
+                ),
+              ),
+            ],
+          ),
           Spacer(
             flex: 1,
           ),

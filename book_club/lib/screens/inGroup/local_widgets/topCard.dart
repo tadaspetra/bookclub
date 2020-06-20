@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:book_club/models/authModel.dart';
 import 'package:book_club/models/book.dart';
 import 'package:book_club/models/groupModel.dart';
+import 'package:book_club/models/userModel.dart';
+import 'package:book_club/screens/addBook/addBook.dart';
 import 'package:book_club/services/dbFuture.dart';
 import 'package:book_club/utils/timeLeft.dart';
 import 'package:book_club/widgets/shadowContainer.dart';
@@ -40,7 +42,8 @@ class _TopCardState extends State<TopCard> {
     _groupModel = Provider.of<GroupModel>(context);
     if (_groupModel != null) {
       isUserDoneWithBook();
-      _currentBook = await DBFuture().getCurrentBook(_groupModel.id, _groupModel.currentBookId);
+      _currentBook = await DBFuture()
+          .getCurrentBook(_groupModel.id, _groupModel.currentBookId);
       _startTimer();
     }
   }
@@ -54,8 +57,8 @@ class _TopCardState extends State<TopCard> {
   }
 
   isUserDoneWithBook() async {
-    if (await DBFuture()
-        .isUserDoneWithBook(_groupModel.id, _groupModel.currentBookId, _authModel.uid)) {
+    if (await DBFuture().isUserDoneWithBook(
+        _groupModel.id, _groupModel.currentBookId, _authModel.uid)) {
       _doneWithBook = true;
     } else {
       _doneWithBook = false;
@@ -73,20 +76,77 @@ class _TopCardState extends State<TopCard> {
     );
   }
 
+  void _goToAddBook(BuildContext context) {
+    UserModel _currentUser = Provider.of<UserModel>(context, listen: false);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => OurAddBook(
+          onGroupCreation: false,
+          onError: true,
+          currentUser: _currentUser,
+        ),
+      ),
+    );
+  }
+
+  Widget noNextBook() {
+    if (_authModel != null && _groupModel != null) {
+      if (_groupModel.currentBookId == "waiting") {
+        if (_authModel.uid == _groupModel.leader) {
+          return Column(
+            children: <Widget>[
+              Text(
+                "Nobody picked the next book. Leader needs to step in and pick!",
+                style: TextStyle(fontSize: 20),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              RaisedButton(
+                child: Text("Pick Next Book"),
+                onPressed: () => _goToAddBook(context),
+                textColor: Colors.white,
+              )
+            ],
+          );
+        } else {
+          return Center(
+            child: Text(
+              "Nobody picked the next book. Leader needs to step in and pick!",
+              style: TextStyle(fontSize: 20),
+            ),
+          );
+        }
+      } else {
+        return Center(
+          child: Text("loading..."),
+        );
+      }
+    } else {
+      return Center(
+        child: Text("loading..."),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_currentBook == null) {
+      return ShadowContainer(child: noNextBook());
+    }
     return ShadowContainer(
       child: Column(
         children: <Widget>[
           Text(
-            (_currentBook != null) ? _currentBook.name : "loading..",
+            _currentBook.name,
             style: TextStyle(
               fontSize: 30,
               color: Colors.grey[600],
             ),
           ),
           Text(
-            (_currentBook != null) ? _currentBook.author : "loading..",
+            _currentBook.author,
             style: TextStyle(
               fontSize: 20,
               color: Colors.grey[600],

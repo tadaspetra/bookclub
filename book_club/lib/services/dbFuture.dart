@@ -7,7 +7,8 @@ import 'package:flutter/services.dart';
 class DBFuture {
   Firestore _firestore = Firestore.instance;
 
-  Future<String> createGroup(String groupName, UserModel user, BookModel initialBook) async {
+  Future<String> createGroup(
+      String groupName, UserModel user, BookModel initialBook) async {
     String retVal = "error";
     List<String> members = List();
     List<String> tokens = List();
@@ -18,7 +19,7 @@ class DBFuture {
       DocumentReference _docRef;
       if (user.notifToken != null) {
         _docRef = await _firestore.collection("groups").add({
-          'name': groupName,
+          'name': groupName.trim(),
           'leader': user.uid,
           'members': members,
           'tokens': tokens,
@@ -28,7 +29,7 @@ class DBFuture {
         });
       } else {
         _docRef = await _firestore.collection("groups").add({
-          'name': groupName,
+          'name': groupName.trim(),
           'leader': user.uid,
           'members': members,
           'groupCreated': Timestamp.now(),
@@ -59,19 +60,13 @@ class DBFuture {
     try {
       members.add(userModel.uid);
       tokens.add(userModel.notifToken);
-      if (userModel.notifToken != null) {
-        await _firestore.collection("groups").document(groupId).updateData({
-          'members': FieldValue.arrayUnion(members),
-          'tokens': FieldValue.arrayUnion(tokens),
-        });
-      } else {
-        await _firestore.collection("groups").document(groupId).updateData({
-          'members': FieldValue.arrayUnion(members),
-        });
-      }
+      await _firestore.collection("groups").document(groupId).updateData({
+        'members': FieldValue.arrayUnion(members),
+        'tokens': FieldValue.arrayUnion(tokens),
+      });
 
       await _firestore.collection("users").document(userModel.uid).updateData({
-        'groupId': groupId,
+        'groupId': groupId.trim(),
       });
 
       retVal = "success";
@@ -85,14 +80,39 @@ class DBFuture {
     return retVal;
   }
 
+  Future<String> leaveGroup(String groupId, UserModel userModel) async {
+    String retVal = "error";
+    List<String> members = List();
+    List<String> tokens = List();
+    try {
+      members.add(userModel.uid);
+      tokens.add(userModel.notifToken);
+      await _firestore.collection("groups").document(groupId).updateData({
+        'members': FieldValue.arrayRemove(members),
+        'tokens': FieldValue.arrayRemove(tokens),
+      });
+
+      await _firestore.collection("users").document(userModel.uid).updateData({
+        'groupId': null,
+      });
+    } catch (e) {
+      print(e);
+    }
+
+    return retVal;
+  }
+
   Future<String> addBook(String groupId, BookModel book) async {
     String retVal = "error";
 
     try {
-      DocumentReference _docRef =
-          await _firestore.collection("groups").document(groupId).collection("books").add({
-        'name': book.name,
-        'author': book.author,
+      DocumentReference _docRef = await _firestore
+          .collection("groups")
+          .document(groupId)
+          .collection("books")
+          .add({
+        'name': book.name.trim(),
+        'author': book.author.trim(),
         'length': book.length,
         'dateCompleted': book.dateCompleted,
       });
@@ -115,10 +135,13 @@ class DBFuture {
     String retVal = "error";
 
     try {
-      DocumentReference _docRef =
-          await _firestore.collection("groups").document(groupId).collection("books").add({
-        'name': book.name,
-        'author': book.author,
+      DocumentReference _docRef = await _firestore
+          .collection("groups")
+          .document(groupId)
+          .collection("books")
+          .add({
+        'name': book.name.trim(),
+        'author': book.author.trim(),
         'length': book.length,
         'dateCompleted': book.dateCompleted,
       });
@@ -130,8 +153,45 @@ class DBFuture {
       });
 
       //adding a notification document
-      DocumentSnapshot doc = await _firestore.collection("groups").document(groupId).get();
-      createNotifications(List<String>.from(doc.data["tokens"]) ?? [], book.name, book.author);
+      DocumentSnapshot doc =
+          await _firestore.collection("groups").document(groupId).get();
+      createNotifications(
+          List<String>.from(doc.data["tokens"]) ?? [], book.name, book.author);
+
+      retVal = "success";
+    } catch (e) {
+      print(e);
+    }
+
+    return retVal;
+  }
+
+  Future<String> addCurrentBook(String groupId, BookModel book) async {
+    String retVal = "error";
+
+    try {
+      DocumentReference _docRef = await _firestore
+          .collection("groups")
+          .document(groupId)
+          .collection("books")
+          .add({
+        'name': book.name.trim(),
+        'author': book.author.trim(),
+        'length': book.length,
+        'dateCompleted': book.dateCompleted,
+      });
+
+      //add current book to group schedule
+      await _firestore.collection("groups").document(groupId).updateData({
+        "currentBookId": _docRef.documentID,
+        "currentBookDue": book.dateCompleted,
+      });
+
+      //adding a notification document
+      DocumentSnapshot doc =
+          await _firestore.collection("groups").document(groupId).get();
+      createNotifications(
+          List<String>.from(doc.data["tokens"]) ?? [], book.name, book.author);
 
       retVal = "success";
     } catch (e) {
@@ -185,7 +245,8 @@ class DBFuture {
     return retVal;
   }
 
-  Future<bool> isUserDoneWithBook(String groupId, String bookId, String uid) async {
+  Future<bool> isUserDoneWithBook(
+      String groupId, String bookId, String uid) async {
     bool retVal = false;
     try {
       DocumentSnapshot _docSnapshot = await _firestore
@@ -211,8 +272,8 @@ class DBFuture {
 
     try {
       await _firestore.collection("users").document(user.uid).setData({
-        'fullName': user.fullName,
-        'email': user.email,
+        'fullName': user.fullName.trim(),
+        'email': user.email.trim(),
         'accountCreated': Timestamp.now(),
         'notifToken': user.notifToken,
       });
@@ -228,7 +289,8 @@ class DBFuture {
     UserModel retVal;
 
     try {
-      DocumentSnapshot _docSnapshot = await _firestore.collection("users").document(uid).get();
+      DocumentSnapshot _docSnapshot =
+          await _firestore.collection("users").document(uid).get();
       retVal = UserModel.fromDocumentSnapshot(doc: _docSnapshot);
     } catch (e) {
       print(e);
@@ -237,13 +299,14 @@ class DBFuture {
     return retVal;
   }
 
-  Future<String> createNotifications(List<String> tokens, String bookName, String author) async {
+  Future<String> createNotifications(
+      List<String> tokens, String bookName, String author) async {
     String retVal = "error";
 
     try {
       await _firestore.collection("notifications").add({
-        'bookName': bookName,
-        'author': author,
+        'bookName': bookName.trim(),
+        'author': author.trim(),
         'tokens': tokens,
       });
       retVal = "success";
@@ -274,7 +337,8 @@ class DBFuture {
     return retVal;
   }
 
-  Future<List<ReviewModel>> getReviewHistory(String groupId, String bookId) async {
+  Future<List<ReviewModel>> getReviewHistory(
+      String groupId, String bookId) async {
     List<ReviewModel> retVal = List();
 
     try {

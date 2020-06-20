@@ -29,7 +29,8 @@ class _OurRootState extends State<OurRoot> {
     super.initState();
 
     if (Platform.isIOS) {
-      _firebaseMessaging.requestNotificationPermissions(IosNotificationSettings());
+      _firebaseMessaging
+          .requestNotificationPermissions(IosNotificationSettings());
       _firebaseMessaging.onIosSettingsRegistered.listen((event) {
         print("IOS Registered");
       });

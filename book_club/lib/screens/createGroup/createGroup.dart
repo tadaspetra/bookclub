@@ -14,6 +14,7 @@ class _CreateGroupState extends State<CreateGroup> {
       MaterialPageRoute(
         builder: (context) => OurAddBook(
           onGroupCreation: true,
+          onError: false,
           groupName: groupName,
         ),
       ),
@@ -60,7 +61,8 @@ class _CreateGroupState extends State<CreateGroup> {
                         ),
                       ),
                     ),
-                    onPressed: () => _goToAddBook(context, _groupNameController.text),
+                    onPressed: () =>
+                        _goToAddBook(context, _groupNameController.text),
                   ),
                 ],
               ),

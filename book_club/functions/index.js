@@ -3,7 +3,7 @@ const admin = require('firebase-admin');
 admin.initializeApp();
 const database = admin.firestore();
 
-exports.checkForBookTransition = functions.pubsub.schedule('every 60 minutes').onRun(async (context) => {
+exports.checkForBookTransition = functions.pubsub.schedule('0 * * * *').onRun(async (context) => {
     const query = await database.collection("groups")
         .where("currentBookDue", '<=', admin.firestore.Timestamp.now())
         .get();
@@ -18,12 +18,21 @@ exports.checkForBookTransition = functions.pubsub.schedule('every 60 minutes').o
             nextIndex = currentIndex + 1;
         }
 
-        await database.doc('groups/' + eachGroup.id).update({
-            "currentBookDue": eachGroup.data()["nextBookDue"],
-            "currentBookId": eachGroup.data()["nextBookId"],
-            "nextBookId": "waiting",
-            "indexPickingBook": nextIndex,
-        })
+        if ((eachGroup.data()["nextBookId"] !== null) || (eachGroup.data()["nextBookId"] !== "waiting")) {
+            await database.doc('groups/' + eachGroup.id).update({
+                "currentBookDue": eachGroup.data()["nextBookDue"],
+                "currentBookId": eachGroup.data()["nextBookId"],
+                "nextBookId": "waiting",
+                "indexPickingBook": nextIndex,
+            })
+        } else {
+            await database.doc('groups/' + eachGroup.id).update({
+                "currentBookDue": "waiting",
+                "currentBookId": "waiting",
+                "nextBookId": "waiting",
+                "indexPickingBook": nextIndex,
+            })
+        }
     })
 })
 

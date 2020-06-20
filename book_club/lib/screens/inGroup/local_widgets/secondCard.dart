@@ -24,9 +24,11 @@ class _SecondCardState extends State<SecondCard> {
     _groupModel = Provider.of<GroupModel>(context);
     _currentUser = Provider.of<UserModel>(context);
     if (_groupModel != null) {
-      _pickingUser = await DBFuture().getUser(_groupModel.members[_groupModel.indexPickingBook]);
+      _pickingUser = await DBFuture()
+          .getUser(_groupModel.members[_groupModel.indexPickingBook]);
       if (_groupModel.nextBookId != "waiting") {
-        _nextBook = await DBFuture().getCurrentBook(_groupModel.id, _groupModel.nextBookId);
+        _nextBook = await DBFuture()
+            .getCurrentBook(_groupModel.id, _groupModel.nextBookId);
       }
 
       if (this.mounted) {
@@ -41,6 +43,7 @@ class _SecondCardState extends State<SecondCard> {
       MaterialPageRoute(
         builder: (context) => OurAddBook(
           onGroupCreation: false,
+          onError: false,
           currentUser: _currentUser,
         ),
       ),

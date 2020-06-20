@@ -10,11 +10,13 @@ import 'package:numberpicker/numberpicker.dart';
 
 class OurAddBook extends StatefulWidget {
   final bool onGroupCreation;
+  final bool onError;
   final String groupName;
   final UserModel currentUser;
 
   OurAddBook({
     this.onGroupCreation,
+    this.onError,
     this.groupName,
     this.currentUser,
   });
@@ -23,6 +25,8 @@ class OurAddBook extends StatefulWidget {
 }
 
 class _OurAddBookState extends State<OurAddBook> {
+  final addBookKey = GlobalKey<ScaffoldState>();
+
   TextEditingController _bookNameController = TextEditingController();
   TextEditingController _authorController = TextEditingController();
   TextEditingController _lengthController = TextEditingController();
@@ -31,8 +35,8 @@ class _OurAddBookState extends State<OurAddBook> {
 
   initState() {
     super.initState();
-    _selectedDate = DateTime(
-        _selectedDate.year, _selectedDate.month, _selectedDate.day, _selectedDate.hour, 0, 0, 0, 0);
+    _selectedDate = DateTime(_selectedDate.year, _selectedDate.month,
+        _selectedDate.day, _selectedDate.hour, 0, 0, 0, 0);
   }
 
   Future<void> _selectDate() async {
@@ -44,8 +48,8 @@ class _OurAddBookState extends State<OurAddBook> {
 
     if (picked != null && picked != _selectedDate) {
       setState(() {
-        _selectedDate =
-            DateTime(picked.year, picked.month, picked.day, _selectedDate.hour, 0, 0, 0, 0);
+        _selectedDate = DateTime(picked.year, picked.month, picked.day,
+            _selectedDate.hour, 0, 0, 0, 0);
       });
     }
   }
@@ -64,8 +68,8 @@ class _OurAddBookState extends State<OurAddBook> {
     ).then((num value) {
       if (value != null) {
         setState(() {
-          _selectedDate = DateTime(
-              _selectedDate.year, _selectedDate.month, _selectedDate.day, value, 0, 0, 0, 0);
+          _selectedDate = DateTime(_selectedDate.year, _selectedDate.month,
+              _selectedDate.day, value, 0, 0, 0, 0);
         });
       }
     });
@@ -74,25 +78,39 @@ class _OurAddBookState extends State<OurAddBook> {
   void _addBook(BuildContext context, String groupName, BookModel book) async {
     String _returnString;
 
-    if (widget.onGroupCreation) {
-      _returnString = await DBFuture().createGroup(groupName, widget.currentUser, book);
-    } else {
-      _returnString = await DBFuture().addNextBook(widget.currentUser.groupId, book);
-    }
+    if (_selectedDate.isAfter(DateTime.now().add(Duration(days: 1)))) {
+      if (widget.onGroupCreation) {
+        _returnString =
+            await DBFuture().createGroup(groupName, widget.currentUser, book);
+      } else if (widget.onError) {
+        _returnString =
+            await DBFuture().addCurrentBook(widget.currentUser.groupId, book);
+      } else {
+        _returnString =
+            await DBFuture().addNextBook(widget.currentUser.groupId, book);
+      }
 
-    if (_returnString == "success") {
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (context) => OurRoot(),
-          ),
-          (route) => false);
+      if (_returnString == "success") {
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OurRoot(),
+            ),
+            (route) => false);
+      }
+    } else {
+      addBookKey.currentState.showSnackBar(
+        SnackBar(
+          content: Text("Due date is less that a day from now!"),
+        ),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: addBookKey,
       body: ListView(
         children: <Widget>[
           Padding(
@@ -168,12 +186,26 @@ class _OurAddBookState extends State<OurAddBook> {
                     ),
                     onPressed: () {
                       BookModel book = BookModel();
-                      book.name = _bookNameController.text;
-                      book.author = _authorController.text;
-                      book.length = int.parse(_lengthController.text);
-                      book.dateCompleted = Timestamp.fromDate(_selectedDate);
+                      if (_bookNameController.text == "") {
+                        addBookKey.currentState.showSnackBar(SnackBar(
+                          content: Text("Need to add book name"),
+                        ));
+                      } else if (_authorController.text == "") {
+                        addBookKey.currentState.showSnackBar(SnackBar(
+                          content: Text("Need to add author"),
+                        ));
+                      } else if (_lengthController.text == "") {
+                        addBookKey.currentState.showSnackBar(SnackBar(
+                          content: Text("Need to add book length"),
+                        ));
+                      } else {
+                        book.name = _bookNameController.text;
+                        book.author = _authorController.text;
+                        book.length = int.parse(_lengthController.text);
+                        book.dateCompleted = Timestamp.fromDate(_selectedDate);
 
-                      _addBook(context, widget.groupName, book);
+                        _addBook(context, widget.groupName, book);
+                      }
                     },
                   ),
                 ],

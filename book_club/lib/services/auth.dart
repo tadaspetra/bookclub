@@ -13,8 +13,9 @@ class Auth {
 
   Stream<AuthModel> get user {
     return _auth.onAuthStateChanged.map(
-      (FirebaseUser firebaseUser) =>
-          (firebaseUser != null) ? AuthModel.fromFirebaseUser(user: firebaseUser) : null,
+      (FirebaseUser firebaseUser) => (firebaseUser != null)
+          ? AuthModel.fromFirebaseUser(user: firebaseUser)
+          : null,
     );
   }
 
@@ -30,15 +31,16 @@ class Auth {
     return retVal;
   }
 
-  Future<String> signUpUser(String email, String password, String fullName) async {
+  Future<String> signUpUser(
+      String email, String password, String fullName) async {
     String retVal = "error";
     try {
-      AuthResult _authResult =
-          await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      AuthResult _authResult = await _auth.createUserWithEmailAndPassword(
+          email: email.trim(), password: password);
       UserModel _user = UserModel(
         uid: _authResult.user.uid,
         email: _authResult.user.email,
-        fullName: fullName,
+        fullName: fullName.trim(),
         accountCreated: Timestamp.now(),
         notifToken: await _fcm.getToken(),
       );
@@ -59,7 +61,8 @@ class Auth {
     String retVal = "error";
 
     try {
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
+      await _auth.signInWithEmailAndPassword(
+          email: email.trim(), password: password);
     } on PlatformException catch (e) {
       retVal = e.message;
     } catch (e) {
