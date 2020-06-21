@@ -162,13 +162,17 @@ class _OurAddBookState extends State<OurAddBook> {
                   Text(DateFormat("H:00").format(_selectedDate)),
                   Row(
                     children: [
-                      FlatButton(
-                        child: Text("Change Date"),
-                        onPressed: () => _selectDate(),
+                      Expanded(
+                        child: FlatButton(
+                          child: Text("Change Date"),
+                          onPressed: () => _selectDate(),
+                        ),
                       ),
-                      FlatButton(
-                        child: Text("Change Time"),
-                        onPressed: () => _selectTime(),
+                      Expanded(
+                        child: FlatButton(
+                          child: Text("Change Time"),
+                          onPressed: () => _selectTime(),
+                        ),
                       ),
                     ],
                   ),
